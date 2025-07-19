@@ -1,56 +1,115 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
-import verifyToken from '../middleware/verifyToken.js';
+import authenticate from '../middleware/verifyToken.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.use(verifyToken);
+//  Create new expense
+router.post('/', authenticate, async (req, res) => {
+  const { title, amount } = req.body;
+  const userId = req.user.id;
 
-// Get all expenses
-router.get('/', async (req, res) => {
-    const expenses = await prisma.expense.findMany({
-        where: { userId: req.user.userId },
-        orderBy: { date: 'desc' },
+  try {
+    const newExpense = await prisma.expense.create({
+      data: {
+        title,
+        amount: parseFloat(amount),
+        userId,
+      },
     });
-    res.json(expenses);
+    res.json(newExpense);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create expense' });
+  }
 });
 
-// Add expense
-router.post('/', async (req, res) => {
-    const { description, amount, category, date } = req.body;
-    const expense = await prisma.expense.create({
-        data: {
-            description,
-            amount: parseFloat(amount),
-            category,
-            date: new Date(date),
-            userId: req.user.userId,
-        },
+//  Get all expenses for logged-in user
+router.get('/', authenticate, async (req, res) => {
+  try {
+    const expenses = await prisma.expense.findMany({
+      where: {
+        userId: req.user.id,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
+    res.json(expenses);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch expenses' });
+  }
+});
+
+//  Get single expense by ID
+router.get('/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const expense = await prisma.expense.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!expense || expense.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
     res.json(expense);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch expense' });
+  }
 });
 
 // Update expense
-router.put('/:id', async (req, res) => {
-    const { description, amount, category, date } = req.body;
-    const expense = await prisma.expense.findUnique({ where: { id: parseInt(req.params.id) } });
-    if (expense.userId !== req.user.userId) return res.status(403).json({ error: 'Forbidden' });
+router.put('/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+  const { title, amount } = req.body;
 
-    const updated = await prisma.expense.update({
-        where: { id: expense.id },
-        data: { description, amount: parseFloat(amount), category, date: new Date(date) },
+  try {
+    const existingExpense = await prisma.expense.findUnique({
+      where: { id: Number(id) },
     });
-    res.json(updated);
+
+    if (!existingExpense || existingExpense.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
+    const updatedExpense = await prisma.expense.update({
+      where: { id: Number(id) },
+      data: {
+        title,
+        amount: parseFloat(amount),
+        updatedAt: new Date(),
+      },
+    });
+
+    res.json(updatedExpense);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update expense' });
+  }
 });
 
-// Delete expense
-router.delete('/:id', async (req, res) => {
-    const expense = await prisma.expense.findUnique({ where: { id: parseInt(req.params.id) } });
-    if (expense.userId !== req.user.userId) return res.status(403).json({ error: 'Forbidden' });
+//  Delete expense
+router.delete('/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
 
-    await prisma.expense.delete({ where: { id: expense.id } });
-    res.json({ message: 'Deleted' });
+  try {
+    const existingExpense = await prisma.expense.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!existingExpense || existingExpense.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
+    await prisma.expense.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({ message: 'Expense deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete expense' });
+  }
 });
 
 export default router;

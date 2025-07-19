@@ -2,6 +2,9 @@ import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config(); //
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -26,6 +29,8 @@ router.post('/login', async (req, res) => {
     if (!match) return res.status(401).json({ error: 'Invalid credentials' });
 
     const token = jwt.sign({ userId: user.id }, SECRET, { expiresIn: '1h' });
+
+    console.log("Token sending to client:", token);//debug
     res.json({ token });
 });
 

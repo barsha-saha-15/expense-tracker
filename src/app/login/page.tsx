@@ -23,6 +23,7 @@ export default function LoginPage() {
             sessionStorage.setItem('token', token);
             router.push('/home');
         } catch (error: any) {
+            console.log(error);//debug
             if (error.response?.data?.error) {
                 alert('Login failed: ' + error.response.data.error);
             } else {
