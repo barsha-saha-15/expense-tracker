@@ -18,7 +18,9 @@ export default function Home() {
     const router = useRouter();
 
     useEffect(() => {
+
         const token = sessionStorage.getItem('token');
+        console.log("Token from sessionStorage:", token);
         if (!token) {
             router.push('/login');
             return;
@@ -31,7 +33,7 @@ export default function Home() {
                 },
             })
             .then((res) => setExpenses(res.data))
-            .catch(() => router.push('/login'));
+            .catch(() => console.log("Error Found"));
     }, [router]);
 
     const deleteExpense = async (id: number) => {
@@ -83,7 +85,6 @@ export default function Home() {
                                 <td className="p-2">{e.description}</td>
                                 <td className="p-2">{e.amount}</td>
                                 <td className="p-2">{e.category}</td>
-                                <td className="p-2">{e.date.split('T')[0]}</td>
                                 <td className="p-2">
                                     <Link href={`/edit-expense/${e.id}`} className="text-blue-600 mr-2">
                                         Edit

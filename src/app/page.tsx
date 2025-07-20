@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import api from '@/components/api';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import api from "@/components/api";
+import Link from "next/link";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -38,7 +38,7 @@ export default function Register() {
         className="w-full border p-2 mb-2"
         placeholder="Email"
         value={email}
-        onChange={e => setEmail(e.target.value)}
+        onChange={(e) => setEmail(e.target.value)}
       />
       <input
         type="password"

@@ -19,14 +19,14 @@ export default function EditExpensePage() {
 
     api
       .get(`/expenses/${params.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { authorization: `Bearer ${token}` },
       })
       .then((res) => {
         setTitle(res.data.title);
         setAmount(res.data.amount);
       })
       .catch(() => router.push('/login'));
-  }, [params.id]);
+  }, [params.id, router]);
 
   const handleUpdate = async () => {
     try {
@@ -35,7 +35,7 @@ export default function EditExpensePage() {
         { title, amount },
         {
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+            authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
         }
       );

@@ -7,19 +7,25 @@ const prisma = new PrismaClient();
 
 //  Create new expense
 router.post('/', authenticate, async (req, res) => {
-  const { title, amount } = req.body;
-  const userId = req.user.id;
+  const { description, amount, category } = req.body;
+  const userId = req.user.userId;
 
   try {
+    console.log(description, amount, category, userId)
+
     const newExpense = await prisma.expense.create({
       data: {
-        title,
+        description,
         amount: parseFloat(amount),
+        category,
         userId,
+
       },
+
     });
     res.json(newExpense);
   } catch (err) {
+    console.log(err)
     res.status(500).json({ error: 'Failed to create expense' });
   }
 });
@@ -29,10 +35,7 @@ router.get('/', authenticate, async (req, res) => {
   try {
     const expenses = await prisma.expense.findMany({
       where: {
-        userId: req.user.id,
-      },
-      orderBy: {
-        createdAt: 'desc',
+        userId: req.user.userId,
       },
     });
     res.json(expenses);
@@ -79,7 +82,6 @@ router.put('/:id', authenticate, async (req, res) => {
       data: {
         title,
         amount: parseFloat(amount),
-        updatedAt: new Date(),
       },
     });
 

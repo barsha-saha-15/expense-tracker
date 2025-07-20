@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api', // এখানে `/api` অবশ্যই থাকবে কারণ backend এ route এ mounted
+    baseURL: 'http://localhost:5000/api', 
 });
 
 // প্রত্যেক request এ token যোগ করবে যদি থাকে
