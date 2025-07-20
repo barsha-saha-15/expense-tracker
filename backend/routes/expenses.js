@@ -53,7 +53,7 @@ router.get('/:id', authenticate, async (req, res) => {
       where: { id: Number(id) },
     });
 
-    if (!expense || expense.userId !== req.user.id) {
+    if (!expense || expense.userId !== req.user.userId) {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
@@ -64,32 +64,36 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 // Update expense
+
 router.put('/:id', authenticate, async (req, res) => {
   const { id } = req.params;
-  const { title, amount } = req.body;
+  const { description, amount, category } = req.body;
 
   try {
     const existingExpense = await prisma.expense.findUnique({
       where: { id: Number(id) },
     });
 
-    if (!existingExpense || existingExpense.userId !== req.user.id) {
+    if (!existingExpense || existingExpense.userId !== req.user.userId) {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
     const updatedExpense = await prisma.expense.update({
       where: { id: Number(id) },
       data: {
-        title,
+        description,
         amount: parseFloat(amount),
+        category,
       },
     });
 
     res.json(updatedExpense);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Failed to update expense' });
   }
 });
+
 
 //  Delete expense
 router.delete('/:id', authenticate, async (req, res) => {
@@ -100,7 +104,7 @@ router.delete('/:id', authenticate, async (req, res) => {
       where: { id: Number(id) },
     });
 
-    if (!existingExpense || existingExpense.userId !== req.user.id) {
+    if (!existingExpense || existingExpense.userId !== req.user.userId) {
       return res.status(403).json({ error: 'Not authorized' });
     }
 

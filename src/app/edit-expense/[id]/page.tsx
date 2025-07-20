@@ -7,8 +7,10 @@ import api from '@/components/api';
 export default function EditExpensePage() {
   const router = useRouter();
   const params = useParams();
-  const [title, setTitle] = useState('');
+
+  const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('');
 
   useEffect(() => {
     const token = sessionStorage.getItem('token');
@@ -22,8 +24,9 @@ export default function EditExpensePage() {
         headers: { authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        setTitle(res.data.title);
+        setDescription(res.data.description); // ✅ Correct field
         setAmount(res.data.amount);
+        setCategory(res.data.category);
       })
       .catch(() => router.push('/login'));
   }, [params.id, router]);
@@ -32,7 +35,7 @@ export default function EditExpensePage() {
     try {
       await api.put(
         `/expenses/${params.id}`,
-        { title, amount },
+        { description, amount, category },
         {
           headers: {
             authorization: `Bearer ${sessionStorage.getItem('token')}`,
@@ -42,7 +45,7 @@ export default function EditExpensePage() {
       router.push('/home');
     } catch (err) {
       console.error('Update failed:', err);
-      router.push('/');
+      alert('Failed to update expense.');
     }
   };
 
@@ -51,14 +54,22 @@ export default function EditExpensePage() {
       <h2 className="text-xl font-bold mb-4">Edit Expense</h2>
       <input
         className="w-full p-2 border rounded mb-2"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <input
+        className="w-full p-2 border rounded mb-2"
+        placeholder="Amount"
+        type="number"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
       />
       <input
         className="w-full p-2 border rounded mb-4"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        type="number"
+        placeholder="Category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
       />
       <button
         onClick={handleUpdate}

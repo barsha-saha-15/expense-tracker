@@ -1,9 +1,9 @@
-
 'use client';
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/components/api";
+import Link from "next/link";   // <-- Import Link from next/link
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -52,6 +52,14 @@ export default function LoginPage() {
             <button onClick={handleLogin} className="bg-blue-600 text-white py-2 w-full rounded">
                 Login
             </button>
+
+            {/* <-- Register link here */}
+            <p className="mt-4 text-center">
+                Don't have an account?{' '}
+                <Link href="/" className="text-blue-600 hover:underline">
+                    Register here
+                </Link>
+            </p>
         </div>
     );
 

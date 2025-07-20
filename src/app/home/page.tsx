@@ -10,7 +10,6 @@ interface Expense {
     description: string;
     amount: number;
     category: string;
-    date: string;
 }
 
 export default function Home() {
@@ -75,7 +74,6 @@ export default function Home() {
                             <th className="p-2">Description</th>
                             <th className="p-2">৳</th>
                             <th className="p-2">Category</th>
-                            <th className="p-2">Date</th>
                             <th className="p-2">Actions</th>
                         </tr>
                     </thead>
